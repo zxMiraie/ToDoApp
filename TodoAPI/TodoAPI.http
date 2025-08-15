@@ -10,7 +10,36 @@ POST {{TodoAPI_HostAddress}}/todos
 Content-Type: application/json
 
 {
-    "title": "New Todo"
+    "title": "New Todo",
+    "description": "This is a new todo item."
 }
 
+### Update an existing Todo
+PUT {{TodoAPI_HostAddress}}/todos/4
+Content-Type: application/json
 
+{
+    "title": "Updated Todo",
+    "currentStatus": "Completed",
+    "description": "This is an updated description for the todo item."
+}
+
+### Test updating non-existent todo
+PUT {{TodoAPI_HostAddress}}/todos/999
+Content-Type: application/json
+
+{
+  "title": "This should fail",
+  "currentStatus": "Completed"
+}
+
+### GET a specific Todo
+GET {{TodoAPI_HostAddress}}/todos/2
+Accept: application/json
+
+### Delete a Todo
+DELETE {{TodoAPI_HostAddress}}/todos/2
+
+### search Todos
+GET {{TodoAPI_HostAddress}}/todos?search=Ciao
+Accept: application/json
