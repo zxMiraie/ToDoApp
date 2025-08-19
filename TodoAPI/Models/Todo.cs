@@ -12,7 +12,6 @@ public class ToDo
     public required string Title { get; set; }
     public string? Description { get; set; }
     
-    
     public Status CurrentStatus { get; set; } = Status.NotStarted;
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

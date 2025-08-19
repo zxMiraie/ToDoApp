@@ -22,7 +22,6 @@ var app = builder.Build();
 
 app.MapPost("/todos", async (DBContext context, ToDo todo) =>
 {
-    todo.CreatedAt = DateTime.UtcNow;
     context.ToDos.Add(todo);
     await context.SaveChangesAsync();
     return Results.Created($"/todos/{todo.Id}", todo);
