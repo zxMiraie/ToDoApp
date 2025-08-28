@@ -20,6 +20,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var app = builder.Build();
 
 
+
+//Create a ToDo item
 app.MapPost("/todos", async (DBContext context, ToDo todo) =>
 {
     context.ToDos.Add(todo);
@@ -28,6 +30,7 @@ app.MapPost("/todos", async (DBContext context, ToDo todo) =>
 
 });
 
+// Update a ToDo item
 app.MapPut("/todos/{id}", async (int id, DBContext context, ToDo updatedToDo) =>
 {
     var todoToUpdate = await context.ToDos.FindAsync(id);
@@ -38,10 +41,12 @@ app.MapPut("/todos/{id}", async (int id, DBContext context, ToDo updatedToDo) =>
     todoToUpdate.Title = updatedToDo.Title;
     todoToUpdate.CurrentStatus = updatedToDo.CurrentStatus;
     todoToUpdate.Description = updatedToDo.Description;
+    todoToUpdate.Priority = updatedToDo.Priority;
     await context.SaveChangesAsync();
     return Results.Ok(todoToUpdate);
 });
 
+// Get a ToDo item by ID
 app.MapGet("/todos/{id}", async (int id, DBContext context) =>
 {
     var todo = await context.ToDos.FindAsync(id);
@@ -52,6 +57,7 @@ app.MapGet("/todos/{id}", async (int id, DBContext context) =>
     return Results.Ok(todo);
 });
 
+// Delete a ToDo item
 app.MapDelete("/todos/{id}", async (int id, DBContext context) =>
 {
     var todoToDelete = await context.ToDos.FindAsync(id);
@@ -64,9 +70,14 @@ app.MapDelete("/todos/{id}", async (int id, DBContext context) =>
     return Results.NoContent();
 });
 
-app.MapGet("/todos", async (DBContext context, Status? status, string? search) =>
+// Get all ToDo items with optional filtering by status and search term
+app.MapGet("/todos", async (DBContext context, Status? status, string? search, int? id) =>
 {
     var query = context.ToDos.AsQueryable();
+    if (id.HasValue)
+    {
+        query = query.Where(todo => todo.Id == id.Value);
+    }
     if (status.HasValue)
     {
         query = query.Where(todo => todo.CurrentStatus == status.Value);
