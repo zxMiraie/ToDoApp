@@ -11,6 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DBContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+}); 
+
 //testing
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -31,17 +41,35 @@ app.MapPost("/todos", async (DBContext context, ToDo todo) =>
 });
 
 // Update a ToDo item
-app.MapPut("/todos/{id}", async (int id, DBContext context, ToDo updatedToDo) =>
+app.MapPatch("/todos/{id}", async (int id, DBContext context, UpdateToDoRequest updateRequest) =>
 {
     var todoToUpdate = await context.ToDos.FindAsync(id);
+    
     if (todoToUpdate == null)
     {
         return Results.NotFound();
     }
-    todoToUpdate.Title = updatedToDo.Title;
-    todoToUpdate.CurrentStatus = updatedToDo.CurrentStatus;
-    todoToUpdate.Description = updatedToDo.Description;
-    todoToUpdate.Priority = updatedToDo.Priority;
+    
+    if (!string.IsNullOrEmpty(updateRequest.Title))
+    {
+        todoToUpdate.Title = updateRequest.Title;
+    }
+
+    if (updateRequest.CurrentStatus != null)
+    {
+        todoToUpdate.CurrentStatus = updateRequest.CurrentStatus.Value;
+    }
+    
+    if (!string.IsNullOrEmpty(updateRequest.Description))
+    {
+        todoToUpdate.Description = updateRequest.Description;
+    }
+    
+    if (updateRequest.Priority != null)
+    {
+        todoToUpdate.Priority = updateRequest.Priority.Value;
+    }
+    
     await context.SaveChangesAsync();
     return Results.Ok(todoToUpdate);
 });
@@ -91,5 +119,6 @@ app.MapGet("/todos", async (DBContext context, Status? status, string? search, i
 
 
 app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 
 app.Run();

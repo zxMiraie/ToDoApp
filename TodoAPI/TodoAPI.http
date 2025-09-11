@@ -15,13 +15,13 @@ Content-Type: application/json
 }
 
 ### Update an existing Todo
-PUT {{TodoAPI_HostAddress}}/todos/4
+PATCH {{TodoAPI_HostAddress}}/todos/8
 Content-Type: application/json
 
 {
-    "title": "Updated Todo",
-    "currentStatus": "Completed",
-    "description": "This is an updated description for the todo item."
+
+    "currentStatus": "InProgress"
+
 }
 
 ### Test updating non-existent todo
